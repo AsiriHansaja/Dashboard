@@ -59,7 +59,7 @@ namespace bill_form.US_Forms
                 int OID = int.Parse(txtOrderID.Text);
                 con.Open();
                 DataGridViewOrder2.Columns.Clear();
-                // Retrieve product details from the Product_Table
+                
                 string selectQry = "SELECT * FROM Product_Table WHERE Product_ID = '" + ID + "'";
                 SqlDataAdapter da = new SqlDataAdapter(selectQry, con);
                 DataSet ds = new DataSet();
@@ -67,7 +67,7 @@ namespace bill_form.US_Forms
 
                 if (ds.Tables["Product_Table"].Rows.Count > 0)
                 {
-                    // Insert product into the Bill_Table with Quantity
+                   
                     string insertQry = "INSERT INTO Bill_Table (ProductID, ProductName, Size, Price, Quantity, OrderID) SELECT Product_ID, Product_Name, Product_Size, Product_Price, @Quantity, @OrderID FROM Product_Table WHERE Product_ID = '" + ID + "'";
                     SqlCommand cmd = new SqlCommand(insertQry, con);
                     cmd.Parameters.AddWithValue("@Quantity", qn);
@@ -76,7 +76,7 @@ namespace bill_form.US_Forms
 
                     cmd.ExecuteNonQuery();
 
-                    // Refresh the data grid view with updated data from the Bill_Table
+                    
                     string selectBillQry = "SELECT * FROM Bill_Table";
                     SqlDataAdapter daBill = new SqlDataAdapter(selectBillQry, con);
                     DataSet dsBill = new DataSet();
@@ -131,12 +131,12 @@ namespace bill_form.US_Forms
                 DialogResult result = MessageBox.Show("All records will be deleted from Bill Table?", "Deletion Confirmation", buttons, MessageBoxIcon.Information);
                 if (result == DialogResult.OK)
                 {
-                    // Delete all records from the Bill_Table
+                
                     string deleteQuery = "DELETE FROM Bill_Table";
                     SqlCommand cmd = new SqlCommand(deleteQuery, con);
                     cmd.ExecuteNonQuery();
 
-                    // Refresh the data grid view with an empty data source
+                  
                     string selectBillQry = "SELECT * FROM Bill_Table";
                     SqlDataAdapter daBill = new SqlDataAdapter(selectBillQry, con);
                     DataSet dsBill = new DataSet();
@@ -229,7 +229,7 @@ namespace bill_form.US_Forms
         }
 
 
-        private int fileCounter = 1; // Counter to keep track of the filename increment
+        private int fileCounter = 1; 
         private void btnPrintBill_Click(object sender, EventArgs e)
         {
             
@@ -237,37 +237,31 @@ namespace bill_form.US_Forms
 
             try
             {
-                // Create a new PDF document
+                
                 Document document = new Document();
 
-                // Create a PDF writer instance to write the document to a file
-                string filePath = $"C:\\Users\\neeth\\Desktop\\Project\\ExportedBill\\Bill_Table_{fileCounter}.pdf"; // Set the file path with incremented filename
+               
+                string filePath = $"C:\\Users\\neeth\\Desktop\\Project\\ExportedBill\\Bill_Table_{fileCounter}.pdf"; 
                 PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(filePath, FileMode.Create));
                 
-
-                // Open the PDF document
                 document.Open();
 
-                // Add a logo to the PDF
-                string logoPath = "C:\\Users\\neeth\\Desktop\\Project\\logoPNG.png"; // Set the path to your logo image file
+                string logoPath = "C:\\Users\\neeth\\Desktop\\Project\\logoPNG.png"; 
                 iTextSharp.text.Image logo = iTextSharp.text.Image.GetInstance(logoPath);
                 logo.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
-                logo.ScaleAbsolute(200f, 100f); // Set the desired width and height of the logo
+                logo.ScaleAbsolute(200f, 100f);
                 document.Add(logo);
 
-                // Add space between the logo and the Bill_Table
                 document.Add(new Paragraph(" "));
 
-                // Create a PDF table with the same number of columns as the DataGridView
                 PdfPTable pdfTable = new PdfPTable(DataGridViewOrder2.ColumnCount);
 
-                // Add table headers from the column names of the DataGridView
+
                 for (int i = 0; i < DataGridViewOrder2.ColumnCount; i++)
                 {
                     pdfTable.AddCell(DataGridViewOrder2.Columns[i].HeaderText);
                 }
 
-                // Add table rows from the DataGridView data
                 foreach (DataGridViewRow row in DataGridViewOrder2.Rows)
                 {
                     for (int j = 0; j < DataGridViewOrder2.ColumnCount; j++)
@@ -279,13 +273,11 @@ namespace bill_form.US_Forms
                     }
                 }
 
-                // Add the PDF table to the document
+
                 document.Add(pdfTable);
 
-                // Add space below the Bill_Table
                 document.Add(new Paragraph(" "));
 
-                // Create a paragraph to print Total Price, Discount Percentage, and Final Price
                 Paragraph infoParagraph = new Paragraph();
                 infoParagraph.Alignment = Element.ALIGN_LEFT;
                 infoParagraph.Add(new Chunk("Order ID: "));
@@ -293,19 +285,19 @@ namespace bill_form.US_Forms
                 infoParagraph.Add(Chunk.NEWLINE);
                 infoParagraph.Add(new Chunk("Total Price: "));
                 infoParagraph.Add(new Chunk(lblTotalPriceDisplay.Text));
-                infoParagraph.Add(Chunk.NEWLINE); // Add a new line
+                infoParagraph.Add(Chunk.NEWLINE); 
                 infoParagraph.Add(new Chunk("Discount Percentage (%): "));
                 infoParagraph.Add(new Chunk(txtDiscount.Text));
-                infoParagraph.Add(Chunk.NEWLINE); // Add a new line
+                infoParagraph.Add(Chunk.NEWLINE); 
                 infoParagraph.Add(new Chunk("Final Price: "));
                 infoParagraph.Add(new Chunk(lblFinalPriceDisplay.Text));
 
-                // Add the info paragraph to the document
+
                 document.Add(infoParagraph);
 
                 fileCounter++;
 
-                // Close the PDF document
+
                 document.Close();
 
                 MessageBox.Show("DataGridView exported to PDF successfully.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -325,7 +317,6 @@ namespace bill_form.US_Forms
         {
             decimal totalPrice = 0;
 
-            // Calculate the total price by summing the values in the "Price" column
             foreach (DataGridViewRow row in DataGridViewOrder2.Rows)
             {
                 if (row.Cells["Price"].Value != null && decimal.TryParse(row.Cells["Price"].Value.ToString(), out decimal price) &&
@@ -336,7 +327,6 @@ namespace bill_form.US_Forms
             }
             lblTotalPriceDisplay.Text = totalPrice.ToString("C");
 
-            // Apply the discount percentage
             if (decimal.TryParse(txtDiscount.Text, out decimal discount) && discount >= 0 && discount <= 100)
             {
                 decimal discountAmount = totalPrice * (discount / 100);
@@ -344,8 +334,7 @@ namespace bill_form.US_Forms
             }
 
 
-            // Update the label text with the final price
-            lblFinalPriceDisplay.Text = totalPrice.ToString("C"); // Display the final price as currency
+            lblFinalPriceDisplay.Text = totalPrice.ToString("C"); 
         }
 
         private void btnDiscount_Click(object sender, EventArgs e)
